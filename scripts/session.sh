@@ -14,7 +14,6 @@ if [[ -z "$TMUX_FZF_SWITCH_CURRENT" ]]; then
     sessions=$(echo "$sessions" | grep -v "^$current_session: ")
 fi
 
-FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select an action.'"
 if [[ -z "$1" ]]; then
     action=$(printf "switch\nnew\nrename\ndetach\nkill" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
 else
@@ -23,11 +22,6 @@ fi
 
 [[ -z "$action" ]] && exit
 if [[ "$action" != "detach" ]]; then
-    if [[ "$action" == "kill" ]]; then
-        FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select target session(s). Press TAB to mark multiple items.'"
-    else
-        FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select target session.'"
-    fi
     if [[ "$action" == "switch" ]]; then
         target_origin=$(printf "%s" "$sessions" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS $TMUX_FZF_PREVIEW_SESSION_OPTIONS")
     elif [[ "$action" != "new" ]]; then
@@ -50,7 +44,6 @@ if [[ "$action" != "detach" ]]; then
 else
     tmux_attached_sessions=$(tmux list-sessions | grep 'attached' | grep -o '^[[:alpha:][:digit:]_-]*:' | sed 's/.$//g')
     sessions=$(echo "$sessions" | grep "^$tmux_attached_sessions")
-    FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select target session(s). Press TAB to mark multiple items.'"
     target_origin=$(printf "%s" "$sessions" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS $TMUX_FZF_PREVIEW_SESSION_OPTIONS")
     target_origin=$(echo "$target_origin" | sed -E "s/\[current\]/$current_session:/")
 fi

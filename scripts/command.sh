@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select a command.'"
 CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$CURRENT_DIR/.envs"
 

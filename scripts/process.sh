@@ -3,7 +3,6 @@
 CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$CURRENT_DIR/.envs"
 
-FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select an action.'"
 if [[ -z "$1" ]]; then
     if [ -x "$(command -v pstree)" ]; then
         action=$(printf "display\ntree\nterminate\nkill\ninterrupt\ncontinue\nstop\nquit\nhangup" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
@@ -37,7 +36,11 @@ _kill() { #{{{ _kill SIG PID USER
 } #}}}
 if [[ "$action" == "display" ]]; then
     if [[ "$(uname)" == "Linux" ]]; then
-        tmux split-window -v -l 50% -b -c '#{pane_current_path}' "top -p $pid"
+        cmd="htop"
+        if [ ! -x "$(command -v htop)" ]; then
+            cmd="top"
+        fi
+        tmux split-window -v -l 50% -b -c '#{pane_current_path}' "${cmd} -p $pid"
     else
         tmux split-window -v -l 50% -b -c '#{pane_current_path}' "top -pid $pid"
     fi

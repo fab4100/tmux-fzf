@@ -12,7 +12,6 @@ else
     panes=$(tmux list-panes -a -F "#S:#{window_index}.#{pane_index}: $TMUX_FZF_PANE_FORMAT")
 fi
 
-FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select an action.'"
 if [[ -z "$1" ]]; then
     action=$(printf "switch\nbreak\njoin\nswap\nlayout\nkill\nresize" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
 else
@@ -21,16 +20,13 @@ fi
 
 [[ -z "$action" ]] && exit
 if [[ "$action" == "layout" ]]; then
-    FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select a layout.'"
     target_origin=$(printf "even-horizontal\neven-vertical\nmain-horizontal\nmain-vertical\ntiled" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
     [[ -z "$target_origin" ]] && exit
     tmux select-layout "$target_origin"
 elif [[ "$action" == "resize" ]]; then
-    FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select direction.'"
     target_origin=$(printf "left\nright\nup\ndown" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
     [[ -z "$target_origin" ]] && exit
     if [[ "$target_origin" == "left" || "$target_origin" == "right" ]]; then
-        FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Cells to be adjusted.'"
         size=$(printf "1\n2\n3\n5\n10\n20\n30" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
         [[ -z "$size" ]] && exit
         if [[ "$target_origin" == "left" ]]; then
@@ -39,7 +35,6 @@ elif [[ "$action" == "resize" ]]; then
             tmux resize-pane -R "$size"
         fi
     elif [[ "$target_origin" == "up" || "$target_origin" == "down" ]]; then
-        FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Lines to be adjusted.'"
         size=$(printf "1\n2\n3\n5\n10\n15\n20" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
         [[ -z "$size" ]] && exit
         if [[ "$target_origin" == "up" ]]; then
@@ -49,11 +44,6 @@ elif [[ "$action" == "resize" ]]; then
         fi
     fi
 else
-    if [[ "$action" == "join" || "$action" == "kill" ]]; then
-        FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select target pane(s). Press TAB to mark multiple items.'"
-    else
-        FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select target pane.'"
-    fi
     if [[ "$action" == "switch" || "$action" == "join" ]]; then
         if [[ -z "$TMUX_FZF_SWITCH_CURRENT" || "$action" == "join" ]]; then
             panes=$(echo "$panes" | grep -v "^$current_pane")
@@ -73,7 +63,6 @@ else
         echo "$target" | sort -r | xargs -I{} tmux kill-pane -t {}
     elif [[ "$action" == "swap" ]]; then
         panes=$(echo "$panes" | grep -v "^$target")
-        FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select another target pane.'"
         target_swap_origin=$(printf "%s" "$panes" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS $TMUX_FZF_PREVIEW_OPTIONS")
         [[ -z "$target_swap_origin" ]] && exit
         target_swap=$(echo "$target_swap_origin" | sed 's/: .*//')
