@@ -14,7 +14,6 @@ fi
 if [[ ! -z "$TMUX_FZF_MENU" ]]; then
     items_origin+=$'\nmenu'
 fi
-items_origin+=$'\n[cancel]'
 item=$(echo "${items_origin}" | $TMUX_FZF_BIN $TMUX_FZF_OPTIONS )
-[[ "$item" == "[cancel]" || -z "$item" ]] && exit
+[[ -z "$item" ]] && exit
 tmux run-shell -b "TMUX_FZF_CLIENT='$TMUX_FZF_CLIENT' $CURRENT_DIR/scripts/${item}.sh"
